@@ -13,19 +13,33 @@ const config: Config = {
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
-        // Terracotta primary
+        // Terracotta primary — "Mint Souk" warm clay
         primary: {
-          50:  '#FDF3F0',
-          100: '#FAE3DB',
-          200: '#F5C5B4',
-          300: '#EDA287',
-          400: '#E27A5A',
-          500: '#C4533A', // main
-          600: '#A33D27',
-          700: '#822C19',
-          800: '#621D0E',
-          900: '#3E1007',
-          950: '#210805',
+          50:  '#FDF1EC',
+          100: '#FBE0D5',
+          200: '#F6C2AE',
+          300: '#EF9E83',
+          400: '#E97A5C',
+          500: '#E15B3D', // main
+          600: '#C5462B',
+          700: '#A1351F',
+          800: '#7C2818',
+          900: '#561C12',
+          950: '#321009',
+        },
+        // Jade mint — soft-tech accent
+        mint: {
+          50:  '#ECFAF5',
+          100: '#D2F4E8',
+          200: '#A8E8D3',
+          300: '#71D7B9',
+          400: '#49C9A4',
+          500: '#34BD98', // main
+          600: '#239B7C',
+          700: '#1C7B63',
+          800: '#175F4E',
+          900: '#134B3F',
+          950: '#082C24',
         },
         // Warm neutrals (background system)
         sand: {
@@ -41,11 +55,15 @@ const config: Config = {
           900: '#1E1E18',
           950: '#0D0D0A',
         },
-        // Accent: soft gold
+        // Accent: warm honey
         gold: {
-          400: '#F5C842',
-          500: '#D4A843',
-          600: '#B08930',
+          100: '#FCEFD2',
+          200: '#F8DCA5',
+          300: '#F4C878',
+          400: '#F1BC5C',
+          500: '#EFB048',
+          600: '#D4912A',
+          700: '#A86F20',
         },
         // Semantic colours
         surface: {
@@ -68,8 +86,9 @@ const config: Config = {
         'card':     '0 2px 12px 0 rgba(0,0,0,0.06), 0 1px 3px 0 rgba(0,0,0,0.04)',
         'card-md':  '0 4px 24px 0 rgba(0,0,0,0.08), 0 2px 6px 0 rgba(0,0,0,0.04)',
         'card-lg':  '0 8px 40px 0 rgba(0,0,0,0.12), 0 4px 12px 0 rgba(0,0,0,0.06)',
-        'primary':  '0 4px 20px 0 rgba(196,83,58,0.35)',
-        'glow':     '0 0 40px 0 rgba(196,83,58,0.15)',
+        'primary':  '0 6px 24px 0 rgba(225,91,61,0.35)',
+        'mint':     '0 6px 24px 0 rgba(52,189,152,0.32)',
+        'glow':     '0 0 40px 0 rgba(225,91,61,0.16)',
       },
       animation: {
         'fade-in':       'fadeIn 0.4s ease-out forwards',
@@ -91,7 +110,7 @@ const config: Config = {
       },
       backgroundImage: {
         'shimmer-gradient': 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%)',
-        'hero-gradient': 'linear-gradient(135deg, #C4533A 0%, #A33D27 50%, #3A1A10 100%)',
+        'hero-gradient': 'linear-gradient(135deg, #C5462B 0%, #8A2E1A 52%, #2A130B 100%)',
         'card-gradient': 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.75) 100%)',
       },
       backdropBlur: {

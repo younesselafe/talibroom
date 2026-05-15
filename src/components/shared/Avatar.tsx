@@ -34,7 +34,7 @@ export default function Avatar({
         )}
       </div>
       {isOnline && (
-        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-[--bg]" />
+        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-mint-500 rounded-full border-2 border-[--bg]" />
       )}
       {isPremium && (
         <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-gold-500 rounded-full flex items-center justify-center text-[8px]">

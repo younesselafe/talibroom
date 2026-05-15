@@ -10,20 +10,24 @@ interface SkeletonGridProps {
 
 function ProfileSkeleton() {
   return (
-    <div className="card p-5 space-y-4">
-      <div className="flex items-center gap-3">
-        <Skeleton className="w-14 h-14 rounded-full" />
-        <div className="flex-1 space-y-2">
+    <div className="card overflow-hidden">
+      <Skeleton className="h-20 w-full rounded-none" />
+      <div className="px-5 pb-5 -mt-9">
+        <Skeleton className="w-14 h-14 rounded-full ring-4 ring-white dark:ring-[#1C1C1A]" />
+        <div className="mt-3 space-y-2">
           <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-3 w-1/3" />
+        </div>
+        <div className="mt-4 space-y-2">
+          <Skeleton className="h-3 w-3/4" />
           <Skeleton className="h-3 w-1/2" />
         </div>
+        <div className="mt-4 flex gap-1.5">
+          <Skeleton className="h-6 w-20 rounded-full" />
+          <Skeleton className="h-6 w-16 rounded-full" />
+        </div>
+        <Skeleton className="mt-4 h-11 w-full rounded-xl" />
       </div>
-      <Skeleton className="h-3 w-full" />
-      <div className="flex gap-2">
-        <Skeleton className="h-6 w-20 rounded-full" />
-        <Skeleton className="h-6 w-16 rounded-full" />
-      </div>
-      <Skeleton className="h-10 w-full rounded-xl" />
     </div>
   )
 }
