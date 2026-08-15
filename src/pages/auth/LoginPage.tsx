@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
@@ -10,8 +11,23 @@ export default function LoginPage() {
   const [password, setPassword]   = useState('')
   const [showPass, setShowPass]   = useState(false)
   const [loading, setLoading]     = useState(false)
+  const [resetting, setResetting] = useState(false)
   const { signIn }                = useAuthStore()
   const navigate                  = useNavigate()
+
+  const forgotPassword = async () => {
+    if (!email.trim()) {
+      toast.error('Enter your email above first, then tap "Forgot password" again.')
+      return
+    }
+    setResetting(true)
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    setResetting(false)
+    if (error) toast.error(error.message)
+    else toast.success('Password reset link sent — check your inbox.')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,9 +66,9 @@ export default function LoginPage() {
         <div>
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-              <span className="text-white font-black">M</span>
+              <span className="text-white font-black">T</span>
             </div>
-            <span className="text-white font-black text-2xl tracking-tight">MoRoom</span>
+            <span className="text-white font-black text-2xl tracking-tight">TalibRoom</span>
           </div>
         </div>
 
@@ -117,9 +133,9 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <motion.div variants={item} className="lg:hidden flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-primary-500 flex items-center justify-center">
-              <span className="text-white font-black text-sm">M</span>
+              <span className="text-white font-black text-sm">T</span>
             </div>
-            <span className="text-xl font-black">Mo<span className="text-primary-500">Room</span></span>
+            <span className="text-xl font-black">Talib<span className="text-primary-500">Room</span></span>
           </motion.div>
 
           <motion.div variants={item}>
@@ -141,7 +157,17 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-sand-700 dark:text-sand-300">Password</label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold text-sand-700 dark:text-sand-300">Password</label>
+                <button
+                  type="button"
+                  onClick={forgotPassword}
+                  disabled={resetting}
+                  className="text-xs font-semibold text-primary-500 hover:text-primary-600 transition-colors disabled:opacity-60"
+                >
+                  {resetting ? 'Sending…' : 'Forgot password?'}
+                </button>
+              </div>
               <div className="relative">
                 <input
                   type={showPass ? 'text' : 'password'}

@@ -2,29 +2,45 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Compass, Building2, Users, MessageSquare, Bell,
-  User, ListChecks, BadgeCheck, UsersRound, LogOut, Moon, Sun,
+  User, ListChecks, BadgeCheck, UsersRound, LogOut, Moon, Sun, Crown,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useUIStore } from '@/store/uiStore'
+import { useLanguage } from '@/lib/LanguageContext'
 import Avatar from '@/components/shared/Avatar'
+import LanguageSelector from '@/components/shared/LanguageSelector'
 import { cn } from '@/lib/utils'
+import { FEATURES } from '@/lib/featureFlags'
 
-const NAV = [
-  { to: '/discover',      icon: Compass,      label: 'Discover' },
-  { to: '/apartments',   icon: Building2,    label: 'Apartments' },
-  { to: '/community',    icon: Users,        label: 'Community' },
-  { to: '/inbox',        icon: MessageSquare,label: 'Inbox' },
-  { to: '/notifications',icon: Bell,         label: 'Notifications' },
-  { to: '/groups',       icon: UsersRound,   label: 'Groups' },
-  { to: '/realtors',     icon: BadgeCheck,   label: 'Realtors' },
-  { to: '/my-listings',  icon: ListChecks,   label: 'My Listings' },
-  { to: '/profile',      icon: User,         label: 'Profile' },
+const STUDENT_NAV: { to: string; icon: React.ElementType; key: string }[] = [
+  { to: '/discover',       icon: Compass,       key: 'discover' },
+  { to: '/apartments',    icon: Building2,     key: 'apartments' },
+  { to: '/community',     icon: Users,         key: 'community.label' },
+  { to: '/inbox',         icon: MessageSquare, key: 'inbox.label' },
+  { to: '/notifications', icon: Bell,          key: 'notifications' },
+  { to: '/groups',        icon: UsersRound,    key: 'groups.label' },
+  { to: '/realtors',      icon: BadgeCheck,    key: 'realtors.label' },
+  { to: '/my-listings',   icon: ListChecks,    key: 'myListings' },
+  { to: '/profile',       icon: User,          key: 'profile' },
+]
+
+const REALTOR_NAV: { to: string; icon: React.ElementType; key: string }[] = [
+  { to: '/my-listings',   icon: ListChecks,    key: 'myListings' },
+  { to: '/apartments',    icon: Building2,     key: 'apartments' },
+  { to: '/inbox',         icon: MessageSquare, key: 'inbox.label' },
+  { to: '/notifications', icon: Bell,          key: 'notifications' },
+  { to: '/profile',       icon: User,          key: 'profile' },
 ]
 
 export default function Sidebar() {
   const { profile, signOut } = useAuthStore()
   const { isDark, toggleDark, unreadMessages, unreadNotifications } = useUIStore()
+  const { t } = useLanguage()
   const navigate = useNavigate()
+  const isRealtor = profile?.account_type === 'realtor'
+  const NAV_ITEMS = (isRealtor ? REALTOR_NAV : STUDENT_NAV).filter(
+    (item) => item.to !== '/realtors' || FEATURES.realtors,
+  )
 
   const badges: Record<string, number> = {
     '/inbox': unreadMessages,
@@ -42,17 +58,17 @@ export default function Sidebar() {
       <div className="px-6 mb-8">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-primary-500 flex items-center justify-center">
-            <span className="text-white font-black text-sm">M</span>
+            <span className="text-white font-black text-sm">T</span>
           </div>
           <span className="text-xl font-black text-sand-900 dark:text-white tracking-tight">
-            Mo<span className="text-primary-500">Room</span>
+            Talib<span className="text-primary-500">Room</span>
           </span>
         </div>
       </div>
 
       {/* Nav items */}
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto hide-scrollbar">
-        {NAV.map(({ to, icon: Icon, label }) => {
+        {NAV_ITEMS.map(({ to, icon: Icon, key }) => {
           const badge = badges[to]
           return (
             <NavLink
@@ -63,7 +79,7 @@ export default function Sidebar() {
               }
             >
               <Icon size={18} />
-              <span className="flex-1 text-sm">{label}</span>
+              <span className="flex-1 text-sm">{t(key)}</span>
               {badge! > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
@@ -76,20 +92,62 @@ export default function Sidebar() {
             </NavLink>
           )
         })}
+        {/* Crib Quest — visible to all students; the page itself shows the
+            premium upsell, so the product is discoverable before paying. */}
+        {FEATURES.concierge && !isRealtor && (
+          <NavLink
+            to="/concierge"
+            className={({ isActive }) =>
+              cn('nav-link relative', isActive && 'nav-link-active')
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Crown size={18} className={isActive ? 'text-amber-900' : 'text-gold-500'} />
+                <span className={cn(
+                  'flex-1 text-sm font-semibold',
+                  isActive ? 'text-amber-900' : 'text-gold-600 dark:text-gold-400',
+                )}>{t('cribQuest')}</span>
+              </>
+            )}
+          </NavLink>
+        )}
+        {/* Upgrade CTA — non-premium students only */}
+        {FEATURES.premium && !profile?.is_premium && !isRealtor && (
+          <NavLink
+            to="/upgrade"
+            className={({ isActive }) =>
+              cn('nav-link relative', isActive && 'nav-link-active')
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Crown size={18} className={isActive ? 'text-amber-900' : 'text-gold-500'} />
+                <span className={cn(
+                  'flex-1 text-sm font-semibold',
+                  isActive ? 'text-amber-900' : 'text-gold-600 dark:text-gold-400',
+                )}>{t('unlockPremium')}</span>
+              </>
+            )}
+          </NavLink>
+        )}
       </nav>
 
       {/* Bottom actions */}
       <div className="px-3 mt-4 space-y-1 border-t border-[--border] pt-4">
+        <div className="px-1 py-1">
+          <LanguageSelector variant="row" className="w-full" />
+        </div>
         <button onClick={toggleDark} className="nav-link w-full">
           {isDark ? <Sun size={18} /> : <Moon size={18} />}
-          <span className="text-sm">{isDark ? 'Light mode' : 'Dark mode'}</span>
+          <span className="text-sm">{isDark ? t('lightMode') : t('darkMode')}</span>
         </button>
         <button
           onClick={() => signOut().then(() => navigate('/login'))}
           className="nav-link w-full text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
         >
           <LogOut size={18} />
-          <span className="text-sm">Sign out</span>
+          <span className="text-sm">{t('signOut')}</span>
         </button>
       </div>
 
@@ -105,7 +163,7 @@ export default function Sidebar() {
               <p className="text-sm font-semibold text-sand-900 dark:text-white truncate">
                 {profile.full_name}
               </p>
-              <p className="text-xs text-sand-400 truncate">{profile.city ?? 'No city set'}</p>
+              <p className="text-xs text-sand-400 truncate">{profile.city ?? t('noCitySet')}</p>
             </div>
           </button>
         </div>

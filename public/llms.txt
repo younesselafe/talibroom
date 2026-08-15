@@ -1,0 +1,30 @@
+# TalibRoom
+
+> TalibRoom is a free platform that helps university students in Morocco find a roommate, a verified apartment, and a student community — built by a student, for students.
+
+Today, most Moroccan students find housing through unmoderated Facebook groups and torn campus flyers, with no way to verify a listing or a roommate is real. TalibRoom replaces that with verified student profiles matched by lifestyle and budget, real apartment listings, and city-based student communities — the core product is free.
+
+## What it does
+
+- Roommate matching — students create a profile (city, university, budget, lifestyle habits) and get matched with compatible roommates.
+- Apartment listings — students and verified real-estate agents post rentals; listings are searchable by city and filtered appropriately for student safety.
+- Student communities — city- and university-based feeds, groups, and direct messaging.
+- Referral program — students can invite friends via a personal link; invites currently enter a giveaway funded by TalibRoom (not affiliated with or sponsored by Anthropic).
+
+## Who it's for
+
+University students in Morocco looking for a roommate or student housing, and real-estate agents listing apartments for students. Available in Arabic, French, and English.
+
+## Cities
+
+Casablanca, Rabat, Marrakech, Fès, Meknès, Tanger, Agadir, Oujda, Tétouan, El Jadida, Safi, Kénitra, Mohammedia, Béni Mellal, Nador.
+
+## Key pages
+
+- Homepage: https://talibroom.com/
+- Terms of Service: https://talibroom.com/terms
+- Privacy Policy: https://talibroom.com/privacy
+
+## Contact
+
+support@talibroom.ma

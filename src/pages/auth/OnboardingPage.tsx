@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ArrowRight, ArrowLeft, MapPin, GraduationCap,
+  ArrowRight, ArrowLeft, MapPin,
   Wallet, Sparkles, Loader2, PartyPopper,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { useLanguage } from '@/lib/LanguageContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,11 +19,13 @@ import { MOROCCAN_CITIES, MOROCCAN_UNIVERSITIES } from '@/types'
 import type { GenderEnum, LifestyleVec } from '@/types'
 import { cn, formatPrice } from '@/lib/utils'
 import { toast } from 'sonner'
+import LanguageSelector from '@/components/shared/LanguageSelector'
 
 type Draft = {
   city: string
   university: string
   gender: GenderEnum | ''
+  age: number | ''
   budget: number
   lifestyle: LifestyleVec
 }
@@ -72,6 +75,8 @@ function QuizRow({ question, children }: { question: string; children: React.Rea
 export default function OnboardingPage() {
   const navigate = useNavigate()
   const { profile, updateProfile } = useAuthStore()
+  const { t } = useLanguage()
+  const isRealtor = profile?.account_type === 'realtor'
 
   const [step, setStep]       = useState(0)
   const [direction, setDir]   = useState(1)
@@ -80,36 +85,49 @@ export default function OnboardingPage() {
     city: profile?.city ?? '',
     university: profile?.university ?? '',
     gender: profile?.gender ?? '',
+    age: profile?.age ?? '',
     budget: profile?.budget ?? 2000,
-    lifestyle: profile?.lifestyle_vec ?? {},
+    lifestyle: profile?.lifestyle_json ?? {},
   })
+
+  const ageValid = draft.age !== '' && draft.age >= 16 && draft.age <= 99
 
   const setLifestyle = (patch: Partial<LifestyleVec>) =>
     setDraft((d) => ({ ...d, lifestyle: { ...d.lifestyle, ...patch } }))
 
-  const canAdvance = [
-    true,
-    draft.city !== '' && draft.university !== '',
-    draft.gender !== '' && draft.budget > 0,
-    true,
-  ][step]
+  // Realtors only need city — skip all student-specific steps.
+  const TOTAL = isRealtor ? 2 : TOTAL_STEPS
+  const canAdvance = isRealtor
+    ? [true, draft.city !== ''][step] ?? true
+    : [true, draft.city !== '' && draft.university !== '', draft.gender !== '' && ageValid && draft.budget > 0, true][step]
 
   const go = (dir: 1 | -1) => {
     setDir(dir)
-    setStep((s) => Math.min(Math.max(s + dir, 0), TOTAL_STEPS - 1))
+    setStep((s) => Math.min(Math.max(s + dir, 0), TOTAL - 1))
   }
 
   const finish = async () => {
     setSaving(true)
-    await updateProfile({
-      city: draft.city,
-      university: draft.university,
-      gender: draft.gender || null,
-      budget: draft.budget,
-      lifestyle_vec: draft.lifestyle,
-    })
-    toast.success('Welcome to MoRoom! 🎉')
-    navigate('/discover')
+    try {
+      await updateProfile(isRealtor
+        ? { city: draft.city }
+        : {
+            city: draft.city,
+            university: draft.university,
+            gender: draft.gender || null,
+            age: draft.age === '' ? null : draft.age,
+            budget: draft.budget,
+            lifestyle_json: draft.lifestyle,
+          }
+      )
+    } catch (err) {
+      setSaving(false)
+      toast.error((err as Error).message || 'Could not save — please try again')
+      return
+    }
+    localStorage.setItem('talibroom_onboarding_done', '1')
+    toast.success(t('onboardingWelcome'))
+    navigate(isRealtor ? '/my-listings' : '/discover')
   }
 
   const slide = {
@@ -125,15 +143,15 @@ export default function OnboardingPage() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-primary-500 flex items-center justify-center">
-              <span className="text-white font-black text-xs">M</span>
+              <span className="text-white font-black text-xs">T</span>
             </div>
-            <span className="font-black">Mo<span className="text-primary-500">Room</span></span>
+            <span className="font-black">Talib<span className="text-primary-500">Room</span></span>
           </div>
           <span className="text-xs font-semibold text-sand-400">
-            {step + 1} / {TOTAL_STEPS}
+            {step + 1} / {TOTAL}
           </span>
         </div>
-        <Progress value={((step + 1) / TOTAL_STEPS) * 100} />
+        <Progress value={((step + 1) / TOTAL) * 100} />
       </div>
 
       {/* Step content */}
@@ -159,19 +177,25 @@ export default function OnboardingPage() {
                   >
                     👋
                   </motion.div>
+
+                  {/* Language picker */}
+                  <div className="flex justify-center">
+                    <LanguageSelector variant="full" className="w-full max-w-xs" />
+                  </div>
+
                   <div>
                     <h1 className="text-3xl font-black text-sand-900 dark:text-white text-balance">
-                      Salam{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}!
+                      {t('onboardingGreeting')}{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}!
                     </h1>
                     <p className="mt-2 text-sand-500 dark:text-sand-400">
-                      Let's build your profile so we can match you with the right roommates and the right home. Takes 60 seconds.
+                      {t('onboardingSubtitle')}
                     </p>
                   </div>
                   <div className="grid grid-cols-3 gap-3 pt-2">
                     {[
-                      { icon: MapPin, label: 'Location' },
-                      { icon: Wallet, label: 'Budget' },
-                      { icon: Sparkles, label: 'Lifestyle' },
+                      { icon: MapPin,      label: t('city') },
+                      { icon: Wallet,      label: t('budget') },
+                      { icon: Sparkles,    label: t('lifestyle') },
                     ].map(({ icon: Icon, label }, i) => (
                       <motion.div
                         key={label}
@@ -192,19 +216,19 @@ export default function OnboardingPage() {
               {step === 1 && (
                 <div className="space-y-6">
                   <div>
-                    <GraduationCap className="text-primary-500 mb-3" size={28} />
+                    <MapPin className="text-primary-500 mb-3" size={28} />
                     <h1 className="text-2xl font-black text-sand-900 dark:text-white">
-                      Where do you study?
+                      {isRealtor ? t('whereYouOperate') : t('whereDoYouStudy')}
                     </h1>
                     <p className="mt-1 text-sand-500 dark:text-sand-400">
-                      We'll show you roommates and apartments nearby.
+                      {isRealtor ? t('cityHelpsMatching') : t('showRoommatesNearby')}
                     </p>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label>City</Label>
+                    <Label>{t('city')}</Label>
                     <Select value={draft.city} onValueChange={(v) => setDraft((d) => ({ ...d, city: v }))}>
-                      <SelectTrigger><SelectValue placeholder="Select your city" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t('selectCity')} /></SelectTrigger>
                       <SelectContent>
                         {MOROCCAN_CITIES.map((c) => (
                           <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -213,17 +237,19 @@ export default function OnboardingPage() {
                     </Select>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label>University</Label>
-                    <Select value={draft.university} onValueChange={(v) => setDraft((d) => ({ ...d, university: v }))}>
-                      <SelectTrigger><SelectValue placeholder="Select your university" /></SelectTrigger>
-                      <SelectContent>
-                        {MOROCCAN_UNIVERSITIES.map((u) => (
-                          <SelectItem key={u} value={u}>{u}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {!isRealtor && (
+                    <div className="space-y-1.5">
+                      <Label>{t('university')}</Label>
+                      <Select value={draft.university} onValueChange={(v) => setDraft((d) => ({ ...d, university: v }))}>
+                        <SelectTrigger><SelectValue placeholder={t('selectUniversity')} /></SelectTrigger>
+                        <SelectContent>
+                          {MOROCCAN_UNIVERSITIES.map((u) => (
+                            <SelectItem key={u} value={u}>{u}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -233,31 +259,51 @@ export default function OnboardingPage() {
                   <div>
                     <Wallet className="text-primary-500 mb-3" size={28} />
                     <h1 className="text-2xl font-black text-sand-900 dark:text-white">
-                      A bit about you
+                      {t('aboutYou')}
                     </h1>
                     <p className="mt-1 text-sand-500 dark:text-sand-400">
-                      This helps us match compatible roommates.
+                      {t('compatibleRoommates')}
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <Label>I identify as</Label>
+                    <Label>{t('identifyAs')}</Label>
                     <div className="flex gap-3">
-                      {(['female', 'male', 'other'] as GenderEnum[]).map((g) => (
+                      {(['female', 'male'] as GenderEnum[]).map((g) => (
                         <ChoiceCard
                           key={g}
                           active={draft.gender === g}
-                          emoji={g === 'female' ? '👩' : g === 'male' ? '👨' : '🧑'}
-                          label={g === 'female' ? 'Woman' : g === 'male' ? 'Man' : 'Other'}
+                          emoji={g === 'female' ? '👩' : '👨'}
+                          label={g === 'female' ? t('woman') : t('man')}
                           onClick={() => setDraft((d) => ({ ...d, gender: g }))}
                         />
                       ))}
                     </div>
                   </div>
 
+                  <div className="space-y-1.5">
+                    <Label htmlFor="age">{t('age')}</Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      min={16}
+                      max={99}
+                      inputMode="numeric"
+                      placeholder={t('agePlaceholder')}
+                      value={draft.age}
+                      onChange={(e) => setDraft((d) => ({
+                        ...d,
+                        age: e.target.value === '' ? '' : Number(e.target.value),
+                      }))}
+                    />
+                    {draft.age !== '' && !ageValid && (
+                      <p className="text-xs font-medium text-red-500">{t('ageError')}</p>
+                    )}
+                  </div>
+
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label>Monthly budget</Label>
+                      <Label>{t('monthlyBudget')}</Label>
                       <span className="text-sm font-black text-primary-600 dark:text-primary-400">
                         {formatPrice(draft.budget)}
                       </span>
@@ -281,44 +327,44 @@ export default function OnboardingPage() {
                   <div>
                     <Sparkles className="text-primary-500 mb-3" size={28} />
                     <h1 className="text-2xl font-black text-sand-900 dark:text-white">
-                      Your lifestyle
+                      {t('yourLifestyle')}
                     </h1>
                     <p className="mt-1 text-sand-500 dark:text-sand-400">
-                      Honest answers = better matches.
+                      {t('honestAnswers')}
                     </p>
                   </div>
 
-                  <QuizRow question="When are you most active?">
+                  <QuizRow question={t('whenActive')}>
                     <ChoiceCard active={draft.lifestyle.sleep_time === 'early'}
-                      emoji="🌅" label="Early bird"
+                      emoji="🌅" label={t('earlyBird')}
                       onClick={() => setLifestyle({ sleep_time: 'early' })} />
                     <ChoiceCard active={draft.lifestyle.sleep_time === 'night_owl'}
-                      emoji="🦉" label="Night owl"
+                      emoji="🦉" label={t('nightOwl')}
                       onClick={() => setLifestyle({ sleep_time: 'night_owl' })} />
                   </QuizRow>
 
-                  <QuizRow question="How do you study?">
+                  <QuizRow question={t('howStudy')}>
                     <ChoiceCard active={draft.lifestyle.study_style === 'quiet'}
-                      emoji="🤫" label="Quiet"
+                      emoji="🤫" label={t('quiet')}
                       onClick={() => setLifestyle({ study_style: 'quiet' })} />
                     <ChoiceCard active={draft.lifestyle.study_style === 'social'}
-                      emoji="💬" label="Social"
+                      emoji="💬" label={t('socialStudy')}
                       onClick={() => setLifestyle({ study_style: 'social' })} />
                   </QuizRow>
 
-                  <QuizRow question="Your space is usually...">
+                  <QuizRow question={t('yourSpace')}>
                     <ChoiceCard active={draft.lifestyle.cleanliness === 'tidy'}
-                      emoji="✨" label="Spotless"
+                      emoji="✨" label={t('spotless')}
                       onClick={() => setLifestyle({ cleanliness: 'tidy' })} />
                     <ChoiceCard active={draft.lifestyle.cleanliness === 'relaxed'}
-                      emoji="😌" label="Relaxed"
+                      emoji="😌" label={t('relaxed')}
                       onClick={() => setLifestyle({ cleanliness: 'relaxed' })} />
                   </QuizRow>
 
                   <div className="flex items-center justify-between card p-4">
                     <div>
-                      <p className="text-sm font-semibold text-sand-700 dark:text-sand-300">Smoker</p>
-                      <p className="text-xs text-sand-400">Do you smoke indoors?</p>
+                      <p className="text-sm font-semibold text-sand-700 dark:text-sand-300">{t('smoker')}</p>
+                      <p className="text-xs text-sand-400">{t('smokesIndoors')}</p>
                     </div>
                     <Switch
                       checked={!!draft.lifestyle.smoking}
@@ -340,27 +386,30 @@ export default function OnboardingPage() {
               <ArrowLeft size={18} />
             </Button>
           )}
-          {step < TOTAL_STEPS - 1 ? (
+          {step < TOTAL - 1 ? (
             <motion.div whileTap={{ scale: 0.98 }} className="flex-1">
               <Button onClick={() => go(1)} disabled={!canAdvance} className="w-full">
-                Continue <ArrowRight size={18} />
+                {t('continue')} <ArrowRight size={18} />
               </Button>
             </motion.div>
           ) : (
             <motion.div whileTap={{ scale: 0.98 }} className="flex-1">
               <Button onClick={finish} disabled={saving} className="w-full">
                 {saving ? <Loader2 size={18} className="animate-spin" />
-                        : <>Enter MoRoom <PartyPopper size={18} /></>}
+                        : <>{t('enterTalibRoom')} <PartyPopper size={18} /></>}
               </Button>
             </motion.div>
           )}
         </div>
         {step === 0 && (
           <button
-            onClick={finish}
+            onClick={() => {
+              localStorage.setItem('talibroom_onboarding_done', '1')
+              navigate('/discover')
+            }}
             className="w-full mt-3 text-xs font-medium text-sand-400 hover:text-sand-600 transition-colors"
           >
-            Skip for now
+            {t('skip')}
           </button>
         )}
       </div>

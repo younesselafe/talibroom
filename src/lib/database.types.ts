@@ -13,7 +13,7 @@ export type Database = {
           university: string | null
           city: string | null
           budget: number | null
-          lifestyle_vec: Record<string, unknown> | null
+          lifestyle_json: Record<string, unknown>
           is_premium: boolean
           created_at: string
           last_seen: string | null
@@ -29,7 +29,7 @@ export type Database = {
           rooms: number
           city: string
           description: string | null
-          image_url: string | null
+          image_urls: string[]
           video_url: string | null
           is_premium: boolean
           created_at: string

@@ -6,25 +6,25 @@
 
 @layer base {
   :root {
-    --bg:        #F6F4EF;
+    --bg:        #E4FFFB;
     --bg-card:   #FFFFFF;
-    --text:      #1A1A18;
-    --text-muted:#6B6F6A;
-    --border:    #E7E3D9;
-    --primary:   #E15B3D;
-    --primary-hover: #C5462B;
-    --mint:      #34BD98;
+    --text:      #00201E;
+    --text-muted:#3D4947;
+    --border:    #BCC9C6;
+    --primary:   #00685F;
+    --primary-hover: #005A52;
+    --mint:      #1B9E73;
   }
 
   .dark {
-    --bg:        #101110;
-    --bg-card:   #1C1C1A;
-    --text:      #F5F4F1;
-    --text-muted:#9B9C95;
-    --border:    #2A2A26;
-    --primary:   #EF9E83;
-    --primary-hover: #E15B3D;
-    --mint:      #49C9A4;
+    --bg:        #0E1513;
+    --bg-card:   #16201E;
+    --text:      #DCF3EE;
+    --text-muted:#9DAAA7;
+    --border:    #27302E;
+    --primary:   #6BD8CB;
+    --primary-hover: #89F5E7;
+    --mint:      #4ECDA0;
   }
 
   * {
@@ -45,7 +45,7 @@
   }
 
   ::selection {
-    background-color: rgba(225, 91, 61, 0.2);
+    background-color: rgba(0, 104, 95, 0.18);
     color: var(--text);
   }
 
@@ -76,7 +76,7 @@
   }
 
   .card {
-    @apply rounded-2xl bg-white dark:bg-[#1C1C1A] shadow-card border border-sand-100 dark:border-[#2A2A26];
+    @apply rounded-2xl bg-white dark:bg-[#16201E] shadow-card border border-sand-100 dark:border-[#27302E];
   }
 
   .card-hover {
@@ -94,7 +94,7 @@
 
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2
-           bg-sand-100 dark:bg-[#2A2A26] hover:bg-sand-200 dark:hover:bg-[#3A3A36]
+           bg-sand-100 dark:bg-[#222D2B] hover:bg-sand-200 dark:hover:bg-[#2F3B39]
            text-sand-800 dark:text-sand-200 font-semibold
            px-5 py-2.5 rounded-xl
            transition-all duration-200 hover:scale-[0.98];
@@ -109,8 +109,8 @@
 
   .input-field {
     @apply w-full px-4 py-3 rounded-xl
-           bg-sand-50 dark:bg-[#2A2A26]
-           border border-sand-200 dark:border-[#3A3A36]
+           bg-sand-50 dark:bg-[#222D2B]
+           border border-sand-200 dark:border-[#2F3B39]
            text-sand-900 dark:text-sand-100
            placeholder:text-sand-400 dark:placeholder:text-sand-600
            focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-400
@@ -147,14 +147,14 @@
   }
 
   .nav-link-active {
-    @apply bg-primary-50 dark:bg-primary-900/20
-           text-primary-600 dark:text-primary-400
-           hover:bg-primary-100 dark:hover:bg-primary-900/30;
+    @apply bg-gold-400 text-gold-700 font-semibold
+           hover:bg-gold-400 hover:text-gold-700
+           dark:bg-gold-400 dark:text-gold-700;
   }
 
   /* Shimmer skeleton */
   .skeleton {
-    @apply bg-sand-100 dark:bg-[#2A2A26] rounded-xl overflow-hidden relative;
+    @apply bg-sand-100 dark:bg-[#222D2B] rounded-xl overflow-hidden relative;
   }
 
   .skeleton::after {
@@ -184,7 +184,7 @@
     -webkit-backdrop-filter: blur(12px);
   }
   .dark .glass {
-    background: rgba(16, 17, 16, 0.8);
+    background: rgba(14, 21, 19, 0.8);
   }
 
   /* Dotted texture overlay — colour follows `currentColor` */

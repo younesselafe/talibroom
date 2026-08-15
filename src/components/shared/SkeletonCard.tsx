@@ -4,8 +4,30 @@ import { cn } from '@/lib/utils'
 
 interface SkeletonGridProps {
   count?: number
-  variant?: 'profile' | 'apartment' | 'post'
+  variant?: 'profile' | 'roommate' | 'apartment' | 'post'
   className?: string
+}
+
+/** Matches the image-led roommate card on DiscoverPage. */
+function RoommateSkeleton() {
+  return (
+    <div className="card overflow-hidden">
+      <Skeleton className="h-56 w-full rounded-none" />
+      <div className="space-y-3 p-4">
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-3 w-1/3" />
+        <div className="grid grid-cols-3 gap-2">
+          <Skeleton className="h-[58px] rounded-lg" />
+          <Skeleton className="h-[58px] rounded-lg" />
+          <Skeleton className="h-[58px] rounded-lg" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-11 flex-1 rounded-xl" />
+          <Skeleton className="h-11 w-11 rounded-xl" />
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function ProfileSkeleton() {
@@ -67,8 +89,15 @@ function PostSkeleton() {
   )
 }
 
+const VARIANTS = {
+  roommate:  RoommateSkeleton,
+  apartment: ApartmentSkeleton,
+  post:      PostSkeleton,
+  profile:   ProfileSkeleton,
+} as const
+
 export default function SkeletonGrid({ count = 6, variant = 'profile', className }: SkeletonGridProps) {
-  const Item = variant === 'apartment' ? ApartmentSkeleton : variant === 'post' ? PostSkeleton : ProfileSkeleton
+  const Item = VARIANTS[variant]
   return (
     <div
       className={cn(

@@ -13,9 +13,18 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { staggerContainer, staggerItem } from '@/components/ui/motion'
-import { toast } from 'sonner'
+import { useLanguage } from '@/lib/LanguageContext'
+
+/** Moroccan local numbers (06/07…) → international wa.me format (2126…). */
+function waNumber(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.startsWith('212')) return digits
+  if (digits.startsWith('0')) return `212${digits.slice(1)}`
+  return digits
+}
 
 export default function RealtorsPage() {
+  const { t } = useLanguage()
   const [city, setCity] = useState('all')
   const { data: realtors, isLoading } = useQuery({ queryKey: ['realtors'], queryFn: api.getRealtors })
 
@@ -29,10 +38,10 @@ export default function RealtorsPage() {
     <div className="page-container max-w-4xl">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
         <h1 className="text-2xl sm:text-3xl font-black text-sand-900 dark:text-white tracking-tight">
-          Verified realtors
+          {t('realtors.page_title')}
         </h1>
         <p className="text-sand-500 dark:text-sand-400 mt-1">
-          Trusted agents — every verified profile is checked by the MoRoom team.
+          {t('realtors.page_subtitle')}
         </p>
       </motion.div>
 
@@ -41,7 +50,7 @@ export default function RealtorsPage() {
         <Select value={city} onValueChange={setCity}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All cities</SelectItem>
+            <SelectItem value="all">{t('realtors.all_cities')}</SelectItem>
             {MOROCCAN_CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -50,7 +59,7 @@ export default function RealtorsPage() {
       {isLoading ? (
         <SkeletonGrid count={4} variant="profile" />
       ) : filtered.length === 0 ? (
-        <EmptyState icon="🏢" title="No realtors in this city yet" />
+        <EmptyState icon="🏢" title={t('realtors.empty')} />
       ) : (
         <motion.div variants={staggerContainer} initial="initial" animate="animate"
                     className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -65,7 +74,7 @@ export default function RealtorsPage() {
                     {r.verified && <BadgeCheck size={16} className="text-blue-500" />}
                   </p>
                   <p className="text-xs text-sand-400 flex items-center gap-1 mt-0.5">
-                    <Building2 size={12} /> {r.agency_name ?? 'Independent agent'}
+                    <Building2 size={12} /> {r.agency_name ?? t('realtors.independent')}
                   </p>
                   <p className="text-xs text-sand-400 flex items-center gap-1 mt-0.5">
                     <MapPin size={12} /> {r.city}
@@ -75,19 +84,26 @@ export default function RealtorsPage() {
 
               <div className="flex items-center gap-2 mt-4">
                 <Badge variant={r.verified ? 'green' : 'neutral'}>
-                  {r.verified ? <><ShieldCheck size={11} /> Verified</> : 'Unverified'}
+                  {r.verified ? <><ShieldCheck size={11} /> {t('realtors.verified')}</> : t('realtors.unverified')}
                 </Badge>
-                <Badge variant="neutral"><Home size={11} /> {r.listing_count ?? 0} listings</Badge>
+                <Badge variant="neutral"><Home size={11} /> {r.listing_count ?? 0} {t('realtors.listings')}</Badge>
               </div>
 
               <div className="flex gap-2 mt-4">
-                <Button variant="outline" className="flex-1"
-                        onClick={() => toast(`Call ${r.phone}`)}>
-                  <Phone size={15} /> Call
+                {/* Real contact actions — these were decorative toasts before. */}
+                <Button variant="outline" className="flex-1" asChild>
+                  <a href={`tel:${r.phone.replace(/\s/g, '')}`}>
+                    <Phone size={15} /> {t('realtors.call')}
+                  </a>
                 </Button>
-                <Button className="flex-1"
-                        onClick={() => toast.success(`Message sent to ${r.full_name.split(' ')[0]}`)}>
-                  Contact
+                <Button className="flex-1" asChild>
+                  <a
+                    href={`https://wa.me/${waNumber(r.phone)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t('realtors.contact')}
+                  </a>
                 </Button>
               </div>
             </motion.div>

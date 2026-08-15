@@ -3,7 +3,12 @@ import { devtools, persist } from 'zustand/middleware'
 import type { User, Session } from '@supabase/supabase-js'
 import type { Profile } from '@/types'
 import { supabase, isMockMode } from '@/lib/supabase'
-import { MOCK_PROFILES } from '@/mock/data'
+
+// Demo fixtures load via dynamic import so they tree-shake out of prod bundles.
+async function mockProfile(): Promise<Profile> {
+  const { MOCK_PROFILES } = await import('@/mock/data')
+  return MOCK_PROFILES[0]
+}
 
 interface AuthState {
   user: User | null
@@ -15,7 +20,7 @@ interface AuthState {
   // actions
   initialize: () => Promise<void>
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>
+  signUp: (email: string, password: string, fullName: string, accountType?: 'student' | 'realtor', referredBy?: string | null) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   updateProfile: (updates: Partial<Profile>) => Promise<void>
   setProfile: (profile: Profile) => void
@@ -36,12 +41,12 @@ export const useAuthStore = create<AuthState>()(
 
           if (isMockMode) {
             // Demo mode: auto-login as first mock profile
-            const mockProfile = MOCK_PROFILES[0]
+            const profile = await mockProfile()
             set({
-              profile: mockProfile,
+              profile,
               isInitialized: true,
               isLoading: false,
-              user: { id: mockProfile.id, email: 'demo@moroom.ma' } as User,
+              user: { id: profile.id, email: 'demo@talibroom.ma' } as User,
             })
             return
           }
@@ -80,8 +85,8 @@ export const useAuthStore = create<AuthState>()(
 
         signIn: async (email, password) => {
           if (isMockMode) {
-            const mockProfile = MOCK_PROFILES[0]
-            set({ profile: mockProfile, user: { id: mockProfile.id, email } as User })
+            const profile = await mockProfile()
+            set({ profile, user: { id: profile.id, email } as User })
             return { error: null }
           }
           set({ isLoading: true })
@@ -90,21 +95,21 @@ export const useAuthStore = create<AuthState>()(
           return { error: error?.message ?? null }
         },
 
-        signUp: async (email, password, fullName) => {
+        signUp: async (email, password, fullName, accountType = 'student', referredBy = null) => {
           if (isMockMode) {
-            const mockProfile = MOCK_PROFILES[0]
-            set({ profile: { ...mockProfile, full_name: fullName } })
+            const profile = await mockProfile()
+            set({ profile: { ...profile, full_name: fullName } })
             return { error: null }
           }
           set({ isLoading: true })
-          const { data, error } = await supabase.auth.signUp({ email, password })
-          if (!error && data.user) {
-            await supabase.from('profiles').insert({
-              id: data.user.id,
-              full_name: fullName,
-              is_premium: false,
-            })
-          }
+          // The `handle_new_user` DB trigger creates the profiles row from
+          // this metadata — the client must not insert one itself. The
+          // trigger re-validates referred_by server-side before trusting it.
+          const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: fullName, account_type: accountType, referred_by: referredBy } },
+          })
           set({ isLoading: false })
           return { error: error?.message ?? null }
         },
@@ -117,17 +122,24 @@ export const useAuthStore = create<AuthState>()(
         updateProfile: async (updates) => {
           const { profile, user } = get()
           if (!profile || !user) return
-          const updated = { ...profile, ...updates }
-          set({ profile: updated })
+          const previous = profile
+          set({ profile: { ...profile, ...updates } })
           if (!isMockMode) {
-            await supabase.from('profiles').update(updates).eq('id', user.id)
+            const { error } = await supabase
+              .from('profiles').update(updates).eq('id', user.id)
+            if (error) {
+              // Roll back the optimistic write so the UI never lies about
+              // what's saved (e.g. the moderation guard rejecting a field).
+              set({ profile: previous })
+              throw new Error(error.message)
+            }
           }
         },
 
         setProfile: (profile) => set({ profile }),
       }),
       {
-        name: 'moroom-auth',
+        name: 'talibroom-auth',
         partialize: (state) => ({ profile: state.profile }),
       }
     )

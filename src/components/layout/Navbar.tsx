@@ -25,7 +25,7 @@ export default function Navbar() {
   const navigate  = useNavigate()
   const location  = useLocation()
 
-  const title = PAGE_TITLES[location.pathname] ?? 'MoRoom'
+  const title = PAGE_TITLES[location.pathname] ?? 'TalibRoom'
   const canGoBack = location.pathname.split('/').length > 2
 
   return (
@@ -46,7 +46,7 @@ export default function Navbar() {
       ) : (
         <div className="lg:hidden flex items-center gap-2 mr-2">
           <div className="w-7 h-7 rounded-lg bg-primary-500 flex items-center justify-center">
-            <span className="text-white font-black text-xs">M</span>
+            <span className="text-white font-black text-xs">T</span>
           </div>
         </div>
       )}
@@ -57,7 +57,7 @@ export default function Navbar() {
       )}>
         {canGoBack ? title : (
           <span>
-            Mo<span className="text-primary-500">Room</span>
+            Talib<span className="text-primary-500">Room</span>
           </span>
         )}
       </h1>

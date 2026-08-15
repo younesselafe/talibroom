@@ -1,5 +1,6 @@
 // ─── Enum mirrors ──────────────────────────────────────────────────────────────
 
+export type AccountType = 'student' | 'realtor' | 'admin'
 export type OwnerType = 'student' | 'realtor'
 export type PostType = 'social' | 'marketplace'
 export type LinkStatus = 'pending' | 'accepted' | 'declined'
@@ -7,7 +8,7 @@ export type LinkKind = 'roommate' | 'marketplace' | 'apartment_inquiry' | 'direc
 export type GroupStatus = 'open' | 'closed' | 'matched'
 export type GroupMemberRole = 'owner' | 'member'
 export type GroupMemberStatus = 'pending' | 'accepted' | 'declined'
-export type GenderEnum = 'male' | 'female' | 'other'
+export type GenderEnum = 'male' | 'female'
 
 // ─── Database row types ────────────────────────────────────────────────────────
 
@@ -16,13 +17,35 @@ export interface Profile {
   full_name: string
   avatar_url: string | null
   gender: GenderEnum | null
+  age?: number | null
   university: string | null
   city: string | null
   budget: number | null
-  lifestyle_vec: LifestyleVec | null
+  lifestyle_json: LifestyleVec | null
   is_premium: boolean
+  premium_expires_at?: string | null
   created_at: string
   last_seen: string | null
+  is_banned?: boolean
+  banned_until?: string | null
+  is_admin?: boolean
+  account_type?: AccountType
+}
+
+export type ReportTarget = 'profile' | 'post' | 'apartment' | 'comment'
+
+export interface Report {
+  id: string
+  reporter_id: string
+  reported_user_id: string | null
+  target_type: ReportTarget
+  target_id: string
+  reason: string | null
+  resolved: boolean
+  created_at: string
+  // joined relations (optional)
+  reporter?: Profile
+  reported_user?: Profile
 }
 
 export interface LifestyleVec {
@@ -42,8 +65,9 @@ export interface Apartment {
   price: number
   rooms: number
   city: string
+  address?: string | null
   description: string | null
-  image_url: string | null
+  image_urls: string[]
   video_url: string | null
   is_premium: boolean
   created_at: string
@@ -62,6 +86,8 @@ export interface Post {
   user_id: string
   content: string
   image_url: string | null
+  image_urls: string[]
+  video_url?: string | null
   type: PostType
   created_at: string
   is_sold: boolean
@@ -107,12 +133,61 @@ export interface Link {
 
 export interface Message {
   id: string
-  link_id: string
+  link_id: string | null   // set for 1-on-1 link threads
+  group_id?: string | null // set for group threads
   sender_id: string
   content: string
+  image_url?: string | null
+  video_url?: string | null
   created_at: string
   // joined
   sender?: Profile
+}
+
+// ─── Concierge ────────────────────────────────────────────────────────────────
+
+export interface ConciergeRequest {
+  id: string
+  user_id: string
+  city: string
+  budget_min: number | null
+  budget_max: number | null
+  rooms: number | null
+  move_in_date: string | null
+  notes: string | null
+  status: 'pending' | 'fulfilled' | 'cancelled'
+  created_at: string
+  // joined
+  user?: Profile
+  offers?: ConciergeOffer[]
+}
+
+export interface ConciergeOffer {
+  id: string
+  request_id: string
+  admin_id: string
+  title: string
+  description: string | null
+  created_at: string
+  // joined
+  items?: ConciergeOfferItem[]
+}
+
+export interface ConciergeOfferItem {
+  id: string
+  offer_id: string
+  title: string | null
+  city: string | null
+  address: string | null
+  price: number | null
+  rooms: number | null
+  realtor_name: string | null
+  realtor_phone: string | null
+  image_urls: string[]
+  video_url: string | null
+  notes: string | null
+  sort_order?: number
+  created_at: string
 }
 
 export interface Notification {
@@ -125,6 +200,7 @@ export interface Notification {
   link_id: string | null
   message_id: string | null
   apartment_id: string | null
+  group_id?: string | null
   preview: string | null
   is_read: boolean
   created_at: string
@@ -141,6 +217,7 @@ export type NotificationType =
   | 'apartment_inquiry'
   | 'group_invite'
   | 'group_joined'
+  | 'concierge_fulfilled'
   | 'system'
 
 export interface Group {
@@ -151,11 +228,14 @@ export interface Group {
   owner_id: string
   max_size: number
   status: GroupStatus
+  gender: 'male' | 'female' | 'mixed'
   created_at: string
-  // joined
+  // joined / derived
   owner?: Profile
   members?: GroupMember[]
   member_count?: number
+  is_member?: boolean   // is the signed-in user an accepted member?
+  is_pending?: boolean  // has the signed-in user a pending join request?
 }
 
 export interface GroupMember {
@@ -208,7 +288,9 @@ export interface ApartmentFilter {
   isPremium: boolean | null
 }
 
-export type InboxTab = 'requests' | 'chats' | 'inquiries'
+export type InboxTab = 'chats' | 'groups' | 'inquiries'
+
+export type FavoriteTarget = 'profile' | 'apartment'
 export type CommunityTab = 'feed' | 'marketplace'
 
 export const MOROCCAN_CITIES = [
@@ -235,13 +317,13 @@ export const MOROCCAN_UNIVERSITIES = [
   'Institut National des Postes et Télécommunications',
 ] as const
 
+// Must stay in sync with the posts.category CHECK constraint in the database.
 export const MARKETPLACE_CATEGORIES = [
-  'Books & Courses',
-  'Electronics',
+  'Books & Textbooks',
   'Furniture',
-  'Clothing',
-  'Transport',
-  'Services',
-  'Food & Groceries',
+  'Electronics',
+  'Kitchen & Dining',
+  'Clothing & Accessories',
+  'Sports & Outdoors',
   'Other',
 ] as const

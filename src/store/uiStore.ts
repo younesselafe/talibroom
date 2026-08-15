@@ -23,8 +23,8 @@ export const useUIStore = create<UIState>()(
       (set, get) => ({
         isDark: false,
         sidebarOpen: true,
-        unreadNotifications: 3,
-        unreadMessages: 5,
+        unreadNotifications: 0,
+        unreadMessages: 0,
 
         toggleDark: () => {
           const next = !get().isDark
@@ -45,7 +45,7 @@ export const useUIStore = create<UIState>()(
           set((s) => ({ unreadMessages: Math.max(0, s.unreadMessages - 1) })),
       }),
       {
-        name: 'moroom-ui',
+        name: 'talibroom-ui',
         partialize: (s) => ({ isDark: s.isDark }),
         onRehydrateStorage: () => (state) => {
           if (state?.isDark) {

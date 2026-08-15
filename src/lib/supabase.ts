@@ -5,7 +5,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
-    '[MoRoom] Supabase env vars missing — running in mock/demo mode. ' +
+    '[TalibRoom] Supabase env vars missing — running in mock/demo mode. ' +
     'Copy .env.example → .env and fill in your project credentials.'
   )
 }

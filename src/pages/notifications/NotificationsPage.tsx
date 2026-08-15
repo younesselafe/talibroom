@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
-  Heart, MessageSquare, UserPlus, Home, MessageCircle, Bell, CheckCheck, UsersRound,
+  Heart, MessageSquare, UserPlus, Home, MessageCircle, Bell, CheckCheck, UsersRound, Crown,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useUIStore } from '@/store/uiStore'
@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { cn, formatRelativeTime } from '@/lib/utils'
 import { staggerContainer, staggerItem } from '@/components/ui/motion'
+import { useLanguage } from '@/lib/LanguageContext'
 
 const ICON: Record<NotificationType, { icon: typeof Bell; color: string }> = {
   link_request:     { icon: UserPlus,      color: 'bg-primary-500' },
@@ -22,28 +23,67 @@ const ICON: Record<NotificationType, { icon: typeof Bell; color: string }> = {
   post_like:        { icon: Heart,         color: 'bg-rose-500' },
   post_comment:     { icon: MessageCircle, color: 'bg-violet-500' },
   apartment_inquiry:{ icon: Home,          color: 'bg-amber-500' },
-  group_invite:     { icon: UsersRound,    color: 'bg-teal-500' },
-  group_joined:     { icon: UsersRound,    color: 'bg-teal-500' },
-  system:           { icon: Bell,          color: 'bg-sand-500' },
+  group_invite:       { icon: UsersRound,    color: 'bg-teal-500' },
+  group_joined:       { icon: UsersRound,    color: 'bg-teal-500' },
+  concierge_fulfilled:{ icon: Crown,         color: 'bg-amber-500' },
+  system:             { icon: Bell,          color: 'bg-sand-500' },
+}
+
+function notifLabel(n: Notification, t: (k: string) => string): string {
+  const actor = n.actor?.full_name ?? 'Someone'
+  switch (n.type) {
+    case 'post_like':            return `${actor} ${t('notif.likedYourPost')}`
+    case 'post_comment':         return `${actor} ${t('notif.commentedOnPost')}`
+    case 'link_request':         return `${actor} ${t('notif.wantsToConnect')}`
+    case 'link_accepted':        return `${actor} ${t('notif.acceptedYourRequest')}`
+    case 'new_message':          return `${actor} ${n.group_id ? t('notif.messagedGroup') : t('notif.sentYouAMessage')}`
+    case 'group_joined':         return `${actor} ${n.preview?.includes('wants') ? t('notif.wantsToJoinYourGroup') : t('notif.joinedYourGroup')}`
+    case 'apartment_inquiry':    return `${actor} ${t('notif.isInterestedInYourListing')}`
+    case 'concierge_fulfilled':  return t('notif.conciergeRequestFulfilled')
+    default:                     return n.preview ?? t('notif.newActivity')
+  }
 }
 
 export default function NotificationsPage() {
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const setUnread = useUIStore((s) => s.setUnreadNotifications)
+  const decrementNotifications = useUIStore((s) => s.decrementNotifications)
+  const queryClient = useQueryClient()
   const { data, isLoading } = useQuery({ queryKey: ['notifications'], queryFn: api.getNotifications })
   const [items, setItems] = useState<Notification[] | null>(null)
 
   const list = items ?? data ?? []
   const unread = list.filter((n) => !n.is_read).length
 
+  // Persist read state to Supabase, then refresh so AppShell's badge settles.
+  const markRead = useMutation({
+    mutationFn: (notifId: string) => api.markNotificationRead(notifId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  })
+  const markAllRead = useMutation({
+    mutationFn: () => api.markAllNotificationsRead(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  })
+
   const markAll = () => {
     setItems(list.map((n) => ({ ...n, is_read: true })))
     setUnread(0)
+    markAllRead.mutate()
   }
 
   const openNotification = (n: Notification) => {
-    setItems((cur) => (cur ?? data ?? []).map((x) => x.id === n.id ? { ...x, is_read: true } : x))
-    if (n.link_id) navigate(`/chat/${n.link_id}`)
+    if (!n.is_read) {
+      setItems((cur) => (cur ?? data ?? []).map((x) => x.id === n.id ? { ...x, is_read: true } : x))
+      decrementNotifications()
+      markRead.mutate(n.id)
+    }
+    if (n.group_id) {
+      const manage = n.type === 'group_joined' ? '?manage=true' : ''
+      navigate(`/groups/${n.group_id}${manage}`)
+    } else if (n.type === 'concierge_fulfilled') {
+      navigate('/concierge')
+    } else if (n.link_id) navigate(`/chat/${n.link_id}`)
     else if (n.apartment_id) navigate(`/apartments/${n.apartment_id}`)
     else if (n.post_id) navigate('/community')
   }
@@ -56,15 +96,15 @@ export default function NotificationsPage() {
       >
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-sand-900 dark:text-white tracking-tight">
-            Notifications
+            {t('notificationsTitle')}
           </h1>
           <p className="text-sand-500 dark:text-sand-400 mt-1">
-            {unread > 0 ? `${unread} new update${unread > 1 ? 's' : ''}` : 'You\'re all caught up'}
+            {unread > 0 ? `${unread} ${unread > 1 ? t('notif.unread_plural') : t('notif.unread_singular')}` : t('allCaughtUp')}
           </p>
         </div>
         {unread > 0 && (
           <Button variant="outline" size="sm" onClick={markAll}>
-            <CheckCheck size={15} /> Mark all read
+            <CheckCheck size={15} /> {t('markAllRead')}
           </Button>
         )}
       </motion.div>
@@ -74,7 +114,7 @@ export default function NotificationsPage() {
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-18 w-full" />)}
         </div>
       ) : list.length === 0 ? (
-        <EmptyState icon="🔔" title="No notifications yet" description="Activity on your profile and listings shows up here." />
+        <EmptyState icon="🔔" title={t('noNotifications')} description={t('noNotificationsDesc')} />
       ) : (
         <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-2">
           {list.map((n) => {
@@ -103,7 +143,7 @@ export default function NotificationsPage() {
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-sand-700 dark:text-sand-200 leading-snug">{n.preview}</p>
+                  <p className="text-sm text-sand-700 dark:text-sand-200 leading-snug">{notifLabel(n, t)}</p>
                   <p className="text-xs text-sand-400 mt-0.5">{formatRelativeTime(n.created_at)}</p>
                 </div>
                 {!n.is_read && <span className="w-2 h-2 rounded-full bg-primary-500 flex-shrink-0" />}

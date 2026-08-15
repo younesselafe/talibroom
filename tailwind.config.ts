@@ -13,62 +13,54 @@ const config: Config = {
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
-        // Terracotta primary — "Mint Souk" warm clay
+        // Teal primary (Material 3)
         primary: {
-          50:  '#FDF1EC',
-          100: '#FBE0D5',
-          200: '#F6C2AE',
-          300: '#EF9E83',
-          400: '#E97A5C',
-          500: '#E15B3D', // main
-          600: '#C5462B',
-          700: '#A1351F',
-          800: '#7C2818',
-          900: '#561C12',
-          950: '#321009',
+          50:  '#E4FFFB',
+          100: '#C1F9F3',
+          200: '#89F5E7',
+          300: '#6BD8CB',
+          400: '#008378', // primary-container
+          500: '#00685F', // main
+          600: '#005A52',
+          700: '#00443F',
+          800: '#00332F',
+          900: '#00211E',
+          950: '#00120F',
         },
-        // Jade mint — soft-tech accent
-        mint: {
-          50:  '#ECFAF5',
-          100: '#D2F4E8',
-          200: '#A8E8D3',
-          300: '#71D7B9',
-          400: '#49C9A4',
-          500: '#34BD98', // main
-          600: '#239B7C',
-          700: '#1C7B63',
-          800: '#175F4E',
-          900: '#134B3F',
-          950: '#082C24',
-        },
-        // Warm neutrals (background system)
+        // Cool teal-grey neutrals (background system)
         sand: {
-          50:  '#FAFAF8',
-          100: '#F5F5F1',
-          200: '#EEEEE9',
-          300: '#E2E2DB',
-          400: '#C8C8BE',
-          500: '#A8A89C',
-          600: '#7A7A6E',
-          700: '#5A5A50',
-          800: '#3A3A32',
-          900: '#1E1E18',
-          950: '#0D0D0A',
+          50:  '#F0FBF9',
+          100: '#E2F1EF',
+          200: '#D1E5E2',
+          300: '#BCC9C6', // outline-variant
+          400: '#9DAAA7',
+          500: '#6D7A77', // outline
+          600: '#525E5C',
+          700: '#3D4947', // on-surface-variant
+          800: '#27302E',
+          900: '#00201E', // on-background
+          950: '#00110F',
         },
-        // Accent: warm honey
+        // Accent: warm amber (Material 3 secondary)
         gold: {
-          100: '#FCEFD2',
-          200: '#F8DCA5',
-          300: '#F4C878',
-          400: '#F1BC5C',
-          500: '#EFB048',
-          600: '#D4912A',
-          700: '#A86F20',
+          400: '#FBBF24', // main accent
+          500: '#F4B500',
+          600: '#7A5A00', // text on light amber
+          700: '#5C4300', // text on solid amber (AA contrast)
+        },
+        // Fresh green accent (online / success highlights)
+        mint: {
+          100: '#D1F5E8',
+          300: '#7FDCBE',
+          400: '#4ECDA0',
+          500: '#2DB888',
+          600: '#1B9E73',
+          700: '#14795A',
         },
         // Semantic colours
         surface: {
           DEFAULT: '#FFFFFF',
-          dark:    '#1C1C1A',
+          dark:    '#16201E',
         },
       },
       borderRadius: {
@@ -83,12 +75,12 @@ const config: Config = {
         '96': '24rem',
       },
       boxShadow: {
-        'card':     '0 2px 12px 0 rgba(0,0,0,0.06), 0 1px 3px 0 rgba(0,0,0,0.04)',
-        'card-md':  '0 4px 24px 0 rgba(0,0,0,0.08), 0 2px 6px 0 rgba(0,0,0,0.04)',
-        'card-lg':  '0 8px 40px 0 rgba(0,0,0,0.12), 0 4px 12px 0 rgba(0,0,0,0.06)',
-        'primary':  '0 6px 24px 0 rgba(225,91,61,0.35)',
-        'mint':     '0 6px 24px 0 rgba(52,189,152,0.32)',
-        'glow':     '0 0 40px 0 rgba(225,91,61,0.16)',
+        'card':     '0 2px 12px 0 rgba(0,55,52,0.06), 0 1px 3px 0 rgba(0,55,52,0.04)',
+        'card-md':  '0 4px 24px 0 rgba(0,55,52,0.10), 0 2px 6px 0 rgba(0,55,52,0.05)',
+        'card-lg':  '0 8px 40px 0 rgba(0,55,52,0.14), 0 4px 12px 0 rgba(0,55,52,0.07)',
+        'primary':  '0 4px 20px 0 rgba(0,104,95,0.32)',
+        'gold':     '0 4px 20px 0 rgba(251,191,36,0.40)',
+        'glow':     '0 0 40px 0 rgba(0,104,95,0.18)',
       },
       animation: {
         'fade-in':       'fadeIn 0.4s ease-out forwards',
@@ -110,7 +102,7 @@ const config: Config = {
       },
       backgroundImage: {
         'shimmer-gradient': 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%)',
-        'hero-gradient': 'linear-gradient(135deg, #C5462B 0%, #8A2E1A 52%, #2A130B 100%)',
+        'hero-gradient': 'linear-gradient(135deg, #00685F 0%, #00443F 50%, #00211E 100%)',
         'card-gradient': 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.75) 100%)',
       },
       backdropBlur: {

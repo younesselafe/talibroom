@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { formatDistanceToNow, format } from 'date-fns'
+import { MOROCCAN_CITIES } from '@/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -20,6 +21,30 @@ export function formatPrice(price: number): string {
     currency: 'MAD',
     maximumFractionDigits: 0,
   }).format(price)
+}
+
+/** Compact budget for tight UI — 2500 → "2.5k", 800 → "800". */
+export function formatBudgetShort(amount: number): string {
+  if (amount >= 1000) {
+    const k = amount / 1000
+    return `${Number.isInteger(k) ? k : k.toFixed(1)}k`
+  }
+  return String(amount)
+}
+
+/** Trim a long university name to its distinctive part for tight UI cells. */
+export function shortUniversity(name: string): string {
+  let s = name
+    .replace(/^Université\s+/i, '')
+    .replace(/\s*\([^)]*\)/g, '')
+    .trim()
+  for (const city of MOROCCAN_CITIES) {
+    if (s.endsWith(` de ${city}`)) {
+      s = s.slice(0, -` de ${city}`.length)
+      break
+    }
+  }
+  return s.trim() || name
 }
 
 export function getInitials(name: string): string {

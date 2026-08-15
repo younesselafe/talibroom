@@ -1,0 +1,22 @@
+# TalibRoom — open to search engines and AI assistants/crawlers.
+User-agent: *
+Allow: /
+
+# Everything below requires a signed-in account and redirects to /login for
+# anyone else — no point sending crawlers into a wall of login screens.
+Disallow: /discover
+Disallow: /apartments
+Disallow: /community
+Disallow: /groups
+Disallow: /inbox
+Disallow: /chat
+Disallow: /notifications
+Disallow: /profile
+Disallow: /my-listings
+Disallow: /realtors
+Disallow: /concierge
+Disallow: /upgrade
+Disallow: /admin
+Disallow: /onboarding
+
+Sitemap: https://talibroom.com/sitemap.xml
