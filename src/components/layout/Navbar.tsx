@@ -98,6 +98,8 @@ export default function Navbar() {
               name={profile.full_name}
               size="sm"
               isPremium={profile.is_premium}
+              gender={profile.gender}
+              lifestyle={profile.lifestyle_json}
             />
           </button>
         )}

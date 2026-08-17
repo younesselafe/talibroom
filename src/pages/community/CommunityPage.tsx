@@ -109,7 +109,8 @@ function Composer({ kind }: { kind: 'social' | 'marketplace' }) {
   return (
     <motion.div layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="card p-4">
       <div className="flex gap-3">
-        <Avatar src={me?.avatar_url} name={me?.full_name ?? 'You'} size="md" isPremium={me?.is_premium} />
+        <Avatar src={me?.avatar_url} name={me?.full_name ?? 'You'} size="md" isPremium={me?.is_premium}
+                gender={me?.gender} lifestyle={me?.lifestyle_json} />
         <div className="flex-1">
           <textarea
             value={value}
@@ -317,7 +318,8 @@ function CommentsSection({ postId, onAdded }: { postId: string; onAdded: () => v
       )}
 
       <div className="flex items-center gap-2">
-        <Avatar src={me?.avatar_url} name={me?.full_name ?? 'You'} size="xs" />
+        <Avatar src={me?.avatar_url} name={me?.full_name ?? 'You'} size="xs"
+                gender={me?.gender} lifestyle={me?.lifestyle_json} />
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}

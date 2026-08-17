@@ -3,6 +3,7 @@ import { Sparkles, GraduationCap, MapPin, Wallet, Heart, Star } from 'lucide-rea
 import type { Profile } from '@/types'
 import { Button } from '@/components/ui/button'
 import ImageCarousel from '@/components/shared/ImageCarousel'
+import CharacterAvatar from '@/components/shared/CharacterAvatar'
 import {
   cn, formatBudgetShort, formatRelativeTime, shortUniversity, LIFESTYLE_LABELS,
 } from '@/lib/utils'
@@ -132,12 +133,19 @@ export default function ProfileCard({ profile, viewer, saved, onToggleSave, onVi
         'shadow-card transition-shadow duration-300 hover:shadow-card-md',
       )}
     >
-      <ImageCarousel
-        images={[profile.avatar_url]}
-        alt={profile.full_name}
-        className="h-56"
-        overlay={overlay}
-      />
+      {profile.avatar_url ? (
+        <ImageCarousel
+          images={[profile.avatar_url]}
+          alt={profile.full_name}
+          className="h-56"
+          overlay={overlay}
+        />
+      ) : (
+        <div className="relative h-56 overflow-hidden">
+          <CharacterAvatar gender={profile.gender} lifestyle={profile.lifestyle_json} className="h-full w-full" />
+          {overlay}
+        </div>
+      )}
 
       <div className="flex flex-1 flex-col p-4">
         {/* Identity */}

@@ -1,4 +1,6 @@
 import { cn, getInitials } from '@/lib/utils'
+import CharacterAvatar from './CharacterAvatar'
+import type { GenderEnum, LifestyleVec } from '@/types'
 
 interface AvatarProps {
   src?: string | null
@@ -7,6 +9,10 @@ interface AvatarProps {
   isPremium?: boolean
   isOnline?: boolean
   className?: string
+  /** When src is missing and gender is known, shows a character illustration
+   *  instead of initials — see CharacterAvatar. */
+  gender?: GenderEnum | null
+  lifestyle?: LifestyleVec | null
 }
 
 const sizes = {
@@ -18,7 +24,7 @@ const sizes = {
 }
 
 export default function Avatar({
-  src, name, size = 'md', isPremium, isOnline, className,
+  src, name, size = 'md', isPremium, isOnline, className, gender, lifestyle,
 }: AvatarProps) {
   return (
     <div className={cn('relative flex-shrink-0', className)}>
@@ -29,6 +35,8 @@ export default function Avatar({
       )}>
         {src ? (
           <img src={src} alt={name} className="w-full h-full object-cover" />
+        ) : gender ? (
+          <CharacterAvatar gender={gender} lifestyle={lifestyle} className="w-full h-full" />
         ) : (
           <span>{getInitials(name)}</span>
         )}
