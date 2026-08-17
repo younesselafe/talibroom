@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowRight, ArrowLeft, MapPin,
-  Wallet, Sparkles, Loader2, PartyPopper,
+  Wallet, Sparkles, Loader2, PartyPopper, Camera,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { api } from '@/lib/api'
 import { useLanguage } from '@/lib/LanguageContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -82,6 +83,7 @@ export default function OnboardingPage() {
   const [step, setStep]       = useState(0)
   const [direction, setDir]   = useState(1)
   const [saving, setSaving]   = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [draft, setDraft]     = useState<Draft>({
     city: profile?.city ?? '',
     university: profile?.university ?? '',
@@ -95,6 +97,22 @@ export default function OnboardingPage() {
 
   const setLifestyle = (patch: Partial<LifestyleVec>) =>
     setDraft((d) => ({ ...d, lifestyle: { ...d.lifestyle, ...patch } }))
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setUploadingAvatar(true)
+    try {
+      const url = await api.uploadImage('avatars', file)
+      await updateProfile({ avatar_url: url })
+      toast.success(t('profile_page.photo_updated'))
+    } catch (err) {
+      toast.error((err as Error).message || 'Could not upload your photo')
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
 
   // Realtors only need city — skip all student-specific steps.
   const TOTAL = isRealtor ? 2 : TOTAL_STEPS
@@ -171,13 +189,36 @@ export default function OnboardingPage() {
               {/* STEP 0 — Welcome */}
               {step === 0 && (
                 <div className="text-center space-y-6">
-                  <motion.div
-                    animate={{ rotate: [0, -8, 8, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                    className="text-6xl"
-                  >
-                    👋
-                  </motion.div>
+                  <div className="flex flex-col items-center gap-2">
+                    <label className="relative cursor-pointer group">
+                      <div className={cn(
+                        'w-24 h-24 rounded-full flex items-center justify-center overflow-hidden border-2 border-dashed transition-colors',
+                        profile?.avatar_url ? 'border-transparent' : 'border-sand-300 dark:border-sand-600 group-hover:border-primary-400',
+                      )}>
+                        {uploadingAvatar ? (
+                          <Loader2 size={22} className="animate-spin text-primary-400" />
+                        ) : profile?.avatar_url ? (
+                          <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <motion.span
+                            animate={{ rotate: [0, -8, 8, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                            className="text-4xl"
+                          >
+                            👋
+                          </motion.span>
+                        )}
+                      </div>
+                      <span className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary-500 text-white flex items-center justify-center border-2 border-[--bg]">
+                        <Camera size={13} />
+                      </span>
+                      <input
+                        type="file" accept="image/*" onChange={handleAvatarChange}
+                        disabled={uploadingAvatar} className="sr-only"
+                      />
+                    </label>
+                    <span className="text-xs text-sand-400">{t('auth.photo_optional')}</span>
+                  </div>
 
                   {/* Language picker */}
                   <div className="flex justify-center">

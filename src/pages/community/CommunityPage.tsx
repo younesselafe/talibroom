@@ -600,9 +600,7 @@ type FeedScope = 'all' | 'city' | 'city_university'
 // ─── Support the Dev card ─────────────────────────────────────────────────────
 
 const SUPPORT_OPTIONS = [
-  { label: 'CIH Bank', value: 'CIH Bank — 230 810 0000123456789012 00' },
-  { label: 'CashPlus', value: 'CashPlus — 06 XX XX XX XX' },
-  { label: 'BuyMeACoffee', value: 'buymeacoffee.com/moroom' },
+  { label: 'RIB', value: 'CIH Bank — 230 810 0000123456789012 00' },
 ]
 
 function SupportCard() {

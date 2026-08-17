@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, EyeOff, ArrowRight, Loader2, Check, GraduationCap, Briefcase, Camera } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, Loader2, Check, GraduationCap, Briefcase } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
-import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -24,21 +23,11 @@ export default function SignupPage() {
   const [showPass, setShowPass] = useState(false)
   const [agreed, setAgreed]     = useState(false)
   const [loading, setLoading]   = useState(false)
-  const [avatarFile, setAvatarFile]       = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  const { signUp, updateProfile } = useAuthStore()
+  const { signUp }              = useAuthStore()
   const navigate                = useNavigate()
 
   const passwordValid = password.length >= 6
   const matches       = password.length > 0 && password === confirm
-
-  const pickAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    e.target.value = ''
-    if (!file) return
-    setAvatarFile(file)
-    setAvatarPreview(URL.createObjectURL(file))
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,20 +40,10 @@ export default function SignupPage() {
     setLoading(false)
     if (error) {
       toast.error(error)
-      return
+    } else {
+      toast.success(t('auth.account_created'))
+      navigate('/onboarding')
     }
-    toast.success(t('auth.account_created'))
-    // Best-effort — storage requires an active session, which may not exist
-    // yet if email confirmation is on. Never block signup on this.
-    if (avatarFile) {
-      try {
-        const url = await api.uploadImage('avatars', avatarFile)
-        await updateProfile({ avatar_url: url })
-      } catch {
-        // Not fatal — they can always add a photo later from their profile.
-      }
-    }
-    navigate('/onboarding')
   }
 
   const stagger = { animate: { transition: { staggerChildren: 0.07 } } }
@@ -200,26 +179,6 @@ export default function SignupPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1], duration: 0.4 } }}
                 onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex flex-col items-center gap-2">
-              <label className="relative cursor-pointer group">
-                <div className={cn(
-                  'w-20 h-20 rounded-full flex items-center justify-center overflow-hidden border-2 border-dashed transition-colors',
-                  avatarPreview ? 'border-transparent' : 'border-sand-300 dark:border-sand-600 group-hover:border-primary-400',
-                )}>
-                  {avatarPreview ? (
-                    <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <Camera size={22} className="text-sand-400 group-hover:text-primary-400 transition-colors" />
-                  )}
-                </div>
-                <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-primary-500 text-white flex items-center justify-center border-2 border-[--bg]">
-                  <Camera size={11} />
-                </span>
-                <input type="file" accept="image/*" onChange={pickAvatar} className="sr-only" />
-              </label>
-              <span className="text-xs text-sand-400">{t('auth.photo_optional')}</span>
-            </div>
-
             <div className="space-y-1.5">
               <Label htmlFor="name">{t('fullName')}</Label>
               <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)}
