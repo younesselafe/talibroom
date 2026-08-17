@@ -14,6 +14,7 @@ import DiscoverHero from './DiscoverHero'
 import DiscoverFilters, { type SortKey } from './DiscoverFilters'
 import ProfileCard, { isProfileOnline } from './ProfileCard'
 import PremiumBanner from '@/components/shared/PremiumBanner'
+import PremiumUpsellBanner from '@/components/shared/PremiumUpsellBanner'
 import { useLanguage } from '@/lib/LanguageContext'
 import { FEATURES } from '@/lib/featureFlags'
 
@@ -209,6 +210,7 @@ export default function DiscoverPage() {
   return (
     <div className="page-container space-y-6">
       <PremiumBanner />
+      <PremiumUpsellBanner />
       <CompleteProfileBanner />
       <ConciergeBanner />
       <DiscoverHero

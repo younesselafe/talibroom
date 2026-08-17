@@ -531,7 +531,7 @@
     "price_desc": "Virement bancaire unique · 49 MAD · Avantages immédiats à l'approbation.",
     "perk1": "👑 Badge premium visible par tous",
     "perk2": "🏠 Débloquer Crib Quest — sélections d'appartements",
-    "perk3": "📸 Photos & vidéos illimitées en chat",
+    "perk3": "📸 Photos illimitées en chat + plus d'annonces par jour (10 au lieu de 3)",
     "perk4": "🚀 Profil boosté dans Découvrir",
     "perk5": "🔍 Accès aux annonces d'agents vérifiés",
     "status_review": "Reçu en cours d'examen ⏳",
@@ -621,6 +621,10 @@
       "perk4": "✓ Profil boosté dans Découvrir",
       "perk5": "✓ Badge premium sur ton profil",
       "cta": "Activer le Mode Personnage Principal — 49 MAD"
+    },
+    "premium_upsell": {
+      "banner_desc": "Badge vérifié, plus d'annonces par jour, photos illimitées en chat — gratuit en invitant 1 ami.",
+      "banner_cta": "Voir les avantages Premium"
     },
     "report": {
       "spam": "Spam ou arnaque",

@@ -531,7 +531,7 @@
     "price_desc": "One-time bank deposit · 49 MAD · Instant perks on approval.",
     "perk1": "👑 Premium badge visible to everyone",
     "perk2": "🏠 Unlock Crib Quest — curated apartment hunts",
-    "perk3": "📸 Unlimited photos & videos in chat",
+    "perk3": "📸 Unlimited chat photos + more listings per day (10 vs 3)",
     "perk4": "🚀 Boosted profile in Discover",
     "perk5": "🔍 Access verified realtor listings",
     "status_review": "Receipt under review ⏳",
@@ -621,6 +621,10 @@
       "perk4": "✓ Boosted profile in Discover",
       "perk5": "✓ Premium badge on your profile",
       "cta": "Unlock Main Character Mode — 49 MAD"
+    },
+    "premium_upsell": {
+      "banner_desc": "Verified badge, more daily listings, unlimited chat photos — free when you invite 1 friend.",
+      "banner_cta": "See Premium perks"
     },
     "report": {
       "spam": "Spam or scam",
