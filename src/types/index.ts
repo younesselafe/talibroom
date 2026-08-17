@@ -302,19 +302,37 @@ export const MOROCCAN_CITIES = [
 export type MoroccanCity = typeof MOROCCAN_CITIES[number]
 
 export const MOROCCAN_UNIVERSITIES = [
+  // Public universities
   'Université Hassan II de Casablanca',
   'Université Mohammed V de Rabat',
   'Université Cadi Ayyad (Marrakech)',
   'Université Sidi Mohammed Ben Abdellah (Fès)',
   'Université Moulay Ismaïl (Meknès)',
-  'Université Abdelmalek Essaâdi (Tanger)',
+  'Université Abdelmalek Essaâdi (Tanger-Tétouan)',
   'Université Ibn Zohr (Agadir)',
-  'Université Mohammed Ier (Oujda)',
+  'Université Mohammed Premier (Oujda)',
+  'Université Chouaib Doukkali (El Jadida)',
+  'Université Ibn Tofail (Kénitra)',
+  'Université Sultan Moulay Slimane (Béni Mellal)',
+  'Université Hassan Ier (Settat)',
+  // Grandes écoles
+  'Université Mohammed VI Polytechnique (UM6P)',
+  'École Mohammadia d\'Ingénieurs (EMI)',
+  'ENSIAS Rabat',
+  'INSEA Rabat',
+  'ENIM Rabat',
   'ISCAE Casablanca',
-  'École Nationale de Commerce et de Gestion',
-  'ENSAM Casablanca',
-  'ENSA (multiple)',
-  'Institut National des Postes et Télécommunications',
+  'ENCG (multiple campuses)',
+  'ENSAM (multiple campuses)',
+  'ENSA (multiple campuses)',
+  'FST (multiple campuses)',
+  'Institut National des Postes et Télécommunications (INPT)',
+  'Faculté de Médecine et de Pharmacie (multiple campuses)',
+  // Private universities
+  'Al Akhawayn University (Ifrane)',
+  'Université Internationale de Rabat (UIR)',
+  'Université Euromed de Fès (UEMF)',
+  'HEM Business School',
 ] as const
 
 // Must stay in sync with the posts.category CHECK constraint in the database.

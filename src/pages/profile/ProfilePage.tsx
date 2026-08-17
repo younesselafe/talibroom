@@ -9,11 +9,12 @@ import {
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 import { FEATURES } from '@/lib/featureFlags'
-import { MOROCCAN_CITIES, MOROCCAN_UNIVERSITIES } from '@/types'
+import { MOROCCAN_CITIES } from '@/types'
 import type { GenderEnum, LinkKind, Profile } from '@/types'
 import Avatar from '@/components/shared/Avatar'
 import EmptyState from '@/components/shared/EmptyState'
 import ReportButton from '@/components/shared/ReportButton'
+import UniversityField from '@/components/shared/UniversityField'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -284,12 +285,10 @@ export default function ProfilePage() {
               </div>
               <div className="space-y-1.5">
                 <Label>{t('university')}</Label>
-                <Select value={draft.university} onValueChange={(v) => setDraft((d) => ({ ...d, university: v }))}>
-                  <SelectTrigger><SelectValue placeholder={t('university')} /></SelectTrigger>
-                  <SelectContent>
-                    {MOROCCAN_UNIVERSITIES.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <UniversityField
+                  value={draft.university}
+                  onChange={(v) => setDraft((d) => ({ ...d, university: v }))}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="profile-age">{t('age')}</Label>

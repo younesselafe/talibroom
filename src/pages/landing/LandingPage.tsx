@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import {
   ArrowRight, CheckCircle2, XCircle, Gift, ShieldCheck, Flame, Pin,
+  Users, Building2, Sparkles, UsersRound, Crown,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useLanguage } from '@/lib/LanguageContext'
@@ -44,9 +45,19 @@ export default function LandingPage() {
     staleTime: 5 * 60 * 1000,
   })
 
+  const { data: premiumClaimed } = useQuery({
+    queryKey: ['referral-premium-claimed'],
+    queryFn: api.getReferralPremiumClaimed,
+    staleTime: 5 * 60 * 1000,
+  })
+
   const goJoin = () => navigate('/signup')
   const visibleCities = MOROCCAN_CITIES.slice(0, 9)
   const moreCities = MOROCCAN_CITIES.length - visibleCities.length
+  const spotsLeft = premiumClaimed != null ? Math.max(0, 1000 - premiumClaimed) : null
+
+  const FEATURE_ICONS = [Users, Building2, Sparkles, UsersRound] as const
+  const FEATURE_KEYS = ['match', 'listings', 'list_own', 'groups'] as const
 
   return (
     <div className="min-h-screen bg-[--bg] overflow-x-hidden">
@@ -193,6 +204,32 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ─── Features ───────────────────────────────────────────────────── */}
+        <section className="page-container py-16 lg:py-20">
+          <motion.h2 {...fadeUp} className="text-2xl sm:text-3xl font-black text-sand-900 dark:text-white text-center tracking-tight mb-12">
+            {t('landing.features_title')}
+          </motion.h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
+            {FEATURE_KEYS.map((key, i) => {
+              const Icon = FEATURE_ICONS[i]
+              return (
+                <motion.div
+                  key={key}
+                  {...fadeUp}
+                  transition={{ ...fadeUp.transition, delay: i * 0.08 }}
+                  className="rounded-3xl border border-sand-200 dark:border-[#27302E] bg-white dark:bg-[#16201E] p-6"
+                >
+                  <div className="w-10 h-10 rounded-2xl bg-primary-100 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-4">
+                    <Icon size={19} />
+                  </div>
+                  <p className="font-bold text-sand-900 dark:text-white mb-1.5">{t(`landing.feature_${key}_title`)}</p>
+                  <p className="text-sm text-sand-500 dark:text-sand-400 leading-relaxed">{t(`landing.feature_${key}_desc`)}</p>
+                </motion.div>
+              )
+            })}
+          </div>
+        </section>
+
         {/* ─── How it works ───────────────────────────────────────────────── */}
         <section className="page-container py-16 lg:py-20">
           <motion.h2 {...fadeUp} className="text-2xl sm:text-3xl font-black text-sand-900 dark:text-white text-center tracking-tight mb-12">
@@ -211,20 +248,41 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ─── Invite & win giveaway ──────────────────────────────────────── */}
+        {/* ─── Invite rewards: premium (capped) + giveaway (ongoing) ─────────── */}
         <section className="page-container py-4 pb-20">
           <motion.div
             {...fadeUp}
             className="max-w-3xl mx-auto rounded-[2rem] bg-gradient-to-br from-gold-400 via-gold-400 to-amber-300 p-8 sm:p-10 text-center relative overflow-hidden"
           >
-            <div className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-white/40" aria-hidden />
-            <Gift size={30} className="mx-auto mb-3 text-white drop-shadow" />
+            <Crown size={30} className="mx-auto mb-3 text-white drop-shadow" />
             <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
-              {t('landing.giveaway_title')}
+              {t('landing.premium_reward_title')}
             </h2>
             <p className="text-white/90 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+              {t('landing.premium_reward_desc')}
+            </p>
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs font-bold text-white">
+              {spotsLeft != null ? (
+                <span>{t('landing.premium_spots_left', { count: spotsLeft })}</span>
+              ) : (
+                <span className="h-3 w-28 rounded-full bg-white/30 animate-pulse" />
+              )}
+            </div>
+
+            <div className="my-7 flex items-center gap-3 max-w-xs mx-auto" aria-hidden>
+              <div className="flex-1 border-t-2 border-dashed border-white/40" />
+              <span className="text-[11px] font-black uppercase tracking-widest text-white/80">{t('landing.giveaway_divider')}</span>
+              <div className="flex-1 border-t-2 border-dashed border-white/40" />
+            </div>
+
+            <Gift size={26} className="mx-auto mb-2 text-white drop-shadow" />
+            <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-2">
+              {t('landing.giveaway_title')}
+            </h3>
+            <p className="text-white/90 text-sm max-w-lg mx-auto leading-relaxed">
               {t('landing.giveaway_desc')}
             </p>
+
             <Button size="lg" onClick={goJoin} className="mt-6 bg-white text-gold-700 hover:bg-white/90 shadow-lg gap-2">
               {t('landing.giveaway_cta')} <ArrowRight size={18} />
             </Button>

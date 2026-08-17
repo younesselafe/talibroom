@@ -15,6 +15,7 @@ import DiscoverFilters, { type SortKey } from './DiscoverFilters'
 import ProfileCard, { isProfileOnline } from './ProfileCard'
 import PremiumBanner from '@/components/shared/PremiumBanner'
 import { useLanguage } from '@/lib/LanguageContext'
+import { FEATURES } from '@/lib/featureFlags'
 
 function ConciergeBanner() {
   const { t } = useLanguage()
@@ -22,7 +23,7 @@ function ConciergeBanner() {
   const navigate = useNavigate()
   const [dismissed, setDismissed] = useState(false)
 
-  if (me?.is_premium || dismissed) return null
+  if (!FEATURES.concierge || me?.is_premium || dismissed) return null
 
   return (
     <AnimatePresence>

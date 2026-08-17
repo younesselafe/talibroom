@@ -15,11 +15,12 @@ import { Switch } from '@/components/ui/switch'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import { MOROCCAN_CITIES, MOROCCAN_UNIVERSITIES } from '@/types'
+import { MOROCCAN_CITIES } from '@/types'
 import type { GenderEnum, LifestyleVec } from '@/types'
 import { cn, formatPrice } from '@/lib/utils'
 import { toast } from 'sonner'
 import LanguageSelector from '@/components/shared/LanguageSelector'
+import UniversityField from '@/components/shared/UniversityField'
 
 type Draft = {
   city: string
@@ -240,14 +241,10 @@ export default function OnboardingPage() {
                   {!isRealtor && (
                     <div className="space-y-1.5">
                       <Label>{t('university')}</Label>
-                      <Select value={draft.university} onValueChange={(v) => setDraft((d) => ({ ...d, university: v }))}>
-                        <SelectTrigger><SelectValue placeholder={t('selectUniversity')} /></SelectTrigger>
-                        <SelectContent>
-                          {MOROCCAN_UNIVERSITIES.map((u) => (
-                            <SelectItem key={u} value={u}>{u}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <UniversityField
+                        value={draft.university}
+                        onChange={(v) => setDraft((d) => ({ ...d, university: v }))}
+                      />
                     </div>
                   )}
                 </div>

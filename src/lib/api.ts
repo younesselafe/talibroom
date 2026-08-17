@@ -1103,6 +1103,13 @@ export const api = {
     return (data as number) ?? 0
   },
 
+  /** How many of the first-1000 referral-premium spots are already claimed. */
+  getReferralPremiumClaimed: async (): Promise<number> => {
+    const { data, error } = await supabase.rpc('get_referral_premium_claimed')
+    ok(error)
+    return (data as number) ?? 0
+  },
+
   /** How many people signed up using the current user's invite link. */
   getMyReferralCount: async (): Promise<number> => {
     const me = await uid()

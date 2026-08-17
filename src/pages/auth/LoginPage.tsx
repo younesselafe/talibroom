@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
-import { supabase } from '@/lib/supabase'
+import { supabase, isMockMode } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
@@ -208,13 +208,15 @@ export default function LoginPage() {
             </Link>
           </motion.p>
 
-          {/* Demo hint */}
-          <motion.div
-            variants={item}
-            className="rounded-xl border border-primary-100 dark:border-primary-900/30 bg-primary-50 dark:bg-primary-900/10 p-3 text-xs text-primary-700 dark:text-primary-300"
-          >
-            <strong>Demo mode</strong> — click Sign in with any credentials to explore the app with mock data.
-          </motion.div>
+          {/* Demo hint — only relevant when there's no real Supabase project configured */}
+          {isMockMode && (
+            <motion.div
+              variants={item}
+              className="rounded-xl border border-primary-100 dark:border-primary-900/30 bg-primary-50 dark:bg-primary-900/10 p-3 text-xs text-primary-700 dark:text-primary-300"
+            >
+              <strong>Demo mode</strong> — click Sign in with any credentials to explore the app with mock data.
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </div>
