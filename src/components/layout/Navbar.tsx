@@ -98,6 +98,7 @@ export default function Navbar() {
               name={profile.full_name}
               size="sm"
               isPremium={profile.is_premium}
+              seed={profile.id}
               gender={profile.gender}
               lifestyle={profile.lifestyle_json}
             />

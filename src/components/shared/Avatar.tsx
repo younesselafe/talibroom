@@ -1,6 +1,11 @@
+import { lazy, Suspense } from 'react'
 import { cn, getInitials } from '@/lib/utils'
-import CharacterAvatar from './CharacterAvatar'
 import type { GenderEnum, LifestyleVec } from '@/types'
+
+// DiceBear's data tables are sizable (~120 kB gzipped) — load them only if
+// a character avatar is actually needed, not on every page that shows any
+// avatar at all.
+const CharacterAvatar = lazy(() => import('./CharacterAvatar'))
 
 interface AvatarProps {
   src?: string | null
@@ -13,6 +18,9 @@ interface AvatarProps {
    *  instead of initials — see CharacterAvatar. */
   gender?: GenderEnum | null
   lifestyle?: LifestyleVec | null
+  /** Stable identity for the generated character (ideally the profile id) —
+   *  falls back to `name` so callers aren't required to pass it. */
+  seed?: string
 }
 
 const sizes = {
@@ -24,7 +32,7 @@ const sizes = {
 }
 
 export default function Avatar({
-  src, name, size = 'md', isPremium, isOnline, className, gender, lifestyle,
+  src, name, size = 'md', isPremium, isOnline, className, gender, lifestyle, seed,
 }: AvatarProps) {
   return (
     <div className={cn('relative flex-shrink-0', className)}>
@@ -36,7 +44,9 @@ export default function Avatar({
         {src ? (
           <img src={src} alt={name} className="w-full h-full object-cover" />
         ) : gender ? (
-          <CharacterAvatar gender={gender} lifestyle={lifestyle} className="w-full h-full" />
+          <Suspense fallback={<span>{getInitials(name)}</span>}>
+            <CharacterAvatar seed={seed ?? name} gender={gender} lifestyle={lifestyle} className="w-full h-full" />
+          </Suspense>
         ) : (
           <span>{getInitials(name)}</span>
         )}

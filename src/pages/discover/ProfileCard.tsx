@@ -1,9 +1,13 @@
+import { lazy, Suspense } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Sparkles, GraduationCap, MapPin, Wallet, Heart, Star } from 'lucide-react'
 import type { Profile } from '@/types'
 import { Button } from '@/components/ui/button'
 import ImageCarousel from '@/components/shared/ImageCarousel'
-import CharacterAvatar from '@/components/shared/CharacterAvatar'
+
+// Shares a chunk with Avatar's own lazy CharacterAvatar import, rather than
+// bundling DiceBear's data tables into DiscoverPage's chunk a second time.
+const CharacterAvatar = lazy(() => import('@/components/shared/CharacterAvatar'))
 import {
   cn, formatBudgetShort, formatRelativeTime, shortUniversity, LIFESTYLE_LABELS,
 } from '@/lib/utils'
@@ -141,8 +145,10 @@ export default function ProfileCard({ profile, viewer, saved, onToggleSave, onVi
           overlay={overlay}
         />
       ) : (
-        <div className="relative h-56 overflow-hidden">
-          <CharacterAvatar gender={profile.gender} lifestyle={profile.lifestyle_json} className="h-full w-full" />
+        <div className="relative h-56 overflow-hidden bg-sand-100 dark:bg-[#222D2B]">
+          <Suspense fallback={null}>
+            <CharacterAvatar seed={profile.id} gender={profile.gender} lifestyle={profile.lifestyle_json} className="h-full w-full" />
+          </Suspense>
           {overlay}
         </div>
       )}

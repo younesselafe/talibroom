@@ -192,7 +192,7 @@ export default function ProfilePage() {
                       className="relative">
             <Avatar src={profile.avatar_url} name={profile.full_name} size="xl"
                     isPremium={profile.is_premium}
-                    gender={profile.gender} lifestyle={profile.lifestyle_json}
+                    seed={profile.id} gender={profile.gender} lifestyle={profile.lifestyle_json}
                     className="ring-4 ring-white dark:ring-[#16201E]" />
             {isOwn && (
               <>
